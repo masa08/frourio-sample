@@ -7,7 +7,7 @@ export default defineController({ getTasks, print }, ({ getTasks, print }) => ({
   get: async ({ query }) => {
     if (query?.message) print(query.message)
 
-    return { status: 200, body: await getTasks(query?.limit) }
+    return { status: 200, body: await getTasks() }
   },
   post: async ({ body }) => ({
     status: 201,

@@ -1,22 +1,26 @@
 import { depend } from 'velona'
 import { PrismaClient } from '@prisma/client'
 import type { Task, Prisma } from '$prisma/client'
+import { TaskRepo } from '$/infrastructure/Task'
+import { prismaTaskRepo } from '$/prisma/implements/Task'
 
-const prisma = new PrismaClient()
+const client = new PrismaClient()
+const taskRepo = new prismaTaskRepo(client)
 
 export const getTasks = depend(
-  { prisma: prisma as { task: { findMany(): Promise<Task[]> } } },
-  async ({ prisma }, limit?: number) =>
-    (await prisma.task.findMany()).slice(0, limit)
+  { taskRepo: taskRepo as TaskRepo },
+  ({ taskRepo }) => {
+    return taskRepo.findMany()
+  }
 )
 
 export const createTask = (label: Task['label']) =>
-  prisma.task.create({ data: { label } })
+  client.task.create({ data: { label } })
 
 export const updateTask = (
   id: Task['id'],
   partialTask: Prisma.TaskUpdateInput
-) => prisma.task.update({ where: { id }, data: partialTask })
+) => client.task.update({ where: { id }, data: partialTask })
 
 export const deleteTask = (id: Task['id']) =>
-  prisma.task.delete({ where: { id } })
+  client.task.delete({ where: { id } })
